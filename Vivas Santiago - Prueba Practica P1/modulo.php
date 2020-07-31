@@ -5,8 +5,6 @@
     $nombreModulo = "";
     $estadoModulo = "";
     $fechaPublicacion = "";
-    $precio = "";
-    $paginas = "";
     $codigoModulo = "";
 
     $moduloService = new ModuloService();
@@ -167,7 +165,7 @@
                                         <input type="button" name="eliminar"
                                             class="btn btn-block btn-primary float-right"
                                             style="padding-bottom: 4px; width:75px;" value="Eliminar"
-                                            onclick="eliminar();">
+                                            onclick="eliminarModulo();">
                                     </div>
 
                                 </div>
@@ -234,7 +232,7 @@
 
     ?>
     <script>
-    function eliminar() {
+    function eliminarModulo() {
         document.getElementById("form").submit();
     }
     </script>

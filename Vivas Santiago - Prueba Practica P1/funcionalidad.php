@@ -3,45 +3,46 @@
     include './service/funcService.php';
     
     $accion="Agregar";
-    $nombreModulo = "";
-    $estadoModulo = "";
-    $fechaPublicacion = "";
-    $precio = "";
-    $paginas = "";
-    $codigoModulo = "";
+    $codigoFunc = "";
+    $url = "";
+    $nombre = "";
+    $descripcion="";
     $result="";
     $funcionalidadService = new FuncService();
 
 
     if(isset($_POST["accion"]) && $_POST["accion"] == "Agregar"){
-        $funcionalidadService->insert($_POST["codigo"],$_POST["nombre"],$_POST["estado"]);
+        $funcionalidadService->insert($_POST["codModulo"],$_POST["url"],$_POST["nombre"],$_POST["desc"]);
         $accion="Agregar";
     
     }elseif(isset($_POST["accion"]) && $_POST["accion"] == "Modificar"){
-        $funcionalidadService->update($_POST["codigo"],$_POST["nombre"],$_POST["estado"]);    
+        $funcionalidadService->update($_POST["codigoFunc"],$_POST["url"],$_POST["nombre"],$_POST["desc"]);
+        $result = $funcionalidadService->findByModules($_POST["codModulo"]);    
         $accion="Agregar";
     
     }elseif(isset($_POST["eliCodigo"])){
+        
         $funcionalidadService->delete($_POST["eliCodigo"]);
     
     }elseif(isset($_GET["update"])){
         
-        $modulo = $funcionalidadService->findByPk($_GET["update"]);
+        $func = $funcionalidadService->findByPk($_GET["update"]);
 
-        if ($modulo!=null) {
-                $codigoModulo=$modulo["COD_MODULO"];
-                $nombreModulo = $modulo["NOMBRE"];
-                $estadoModulo = $modulo["ESTADO"];
+        if ($func!=null) {
+                $url=$func["URL_PRINCIPAL"];
+                $nombre = $func["NOMBRE"];
+                $descripcion = $func["DESCRIPCION"];
+                $codigoFunc = $func["COD_FUNCIONALIDAD"];
             }
         $accion="Modificar";
+
     }elseif(isset($_POST["codModulo"])){
         $result = $funcionalidadService->findByModules($_POST["codModulo"]);
     }
 
-    $result = $funcionalidadService->findByModules('1');
     $modulos = $funcionalidadService->findModules();
     
-
+    //$result = $funcionalidadService->findByModules('1');
 ?>
 
 <!DOCTYPE html>
@@ -50,7 +51,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Modulo</title>
+    <title>Funcionalidad</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Font Awesome -->
@@ -125,9 +126,10 @@
 
             <div class="container-fluid">
                 <div class="container">
-                    <form METHOD="POST" action="./funcionalidad.php" id="form" name="form">
+                    <form METHOD="POST" action="funcionalidad.php" id="form" name="form">
                         <div class="form-group">
                             <label for="codModulo">Estado</label>
+                            
                             <select class="form-control" id="codModulo" name="codModulo" >
                                 <?php   if ($modulos->num_rows > 0) { 
                                                         while($row1 = $modulos->fetch_assoc()) {
@@ -135,13 +137,13 @@
                                     <?php echo $row1["NOMBRE"]?> </option>
                                 <?php }
                                                  }
-                                                 ?>
+                                        ?>
                             </select>
                         </div>
 
                         <div class="form-group card-header">
                             <input type="button" name="aceptar" class="btn btn-block btn-primary float-right"
-                                style="padding-bottom: 4px; width:75px;" value="aceptar" onclick="aceptar();">
+                                style="padding-bottom: 4px; width:75px;" value="aceptar" onclick="aceptarFunc();">
                         </div>
 
                         <div class="row">
@@ -194,7 +196,7 @@
                                         <input type="button" name="eliminar"
                                             class="btn btn-block btn-primary float-right"
                                             style="padding-bottom: 4px; width:75px;" value="Eliminar"
-                                            onclick="eliminar();">
+                                            onclick="eliminarFunc();">
                                     </div>
 
                                 </div>
@@ -211,19 +213,21 @@
 
                                     <div class="card-body">
                                         <div class="form-group">
+
+                                        <input type="hidden" name="codigoFunc" id="codigoFunc" value="<?php echo $codigoFunc?>">
                                             <label for="url">URL PRINCIPAL</label>
                                             <input type="text" class="form-control" id="url" name="url"
-                                                value="<?php echo $codigoModulo?>" required>
+                                                value="<?php echo $url?>" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="nombre">NOMBRE</label>
                                             <input type="text" class="form-control" id="nombre" name="nombre"
-                                                value="<?php echo $nombreModulo?>" required>
+                                                value="<?php echo $nombre?>" required>
                                         </div>
                                         <div class="form-group">
                                             <label for="desc">DESCRIPCION</label>
                                             <input type="text" class="form-control" id="desc" name="desc"
-                                                value="<?php echo $nombreModulo?>" required>
+                                                value="<?php echo $descripcion?>" required>
                                         </div>
 
                                     </div>
@@ -261,11 +265,11 @@
 
     ?>
     <script>
-    function eliminar() {
+    function eliminarFunc() {
         document.getElementById("form").submit();
     }
 
-    function aceptar() {
+    function aceptarFunc() {
         document.getElementById("form").submit();
     }
     </script>
