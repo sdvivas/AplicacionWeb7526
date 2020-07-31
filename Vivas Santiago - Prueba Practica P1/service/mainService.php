@@ -9,8 +9,8 @@ class MainService {
         $this->conex = $connection->getConnection();
     }
 
-    function findAll1($sql){
-        return $this->conex->query("SELECT * FROM ".$sql);
+    function findActive($sql){
+        return $this->conex->query("SELECT * FROM $sql WHERE ESTADO LIKE 'ACT'");
     }
 }
 ?>

@@ -1,47 +1,40 @@
 <?php
-    session_start();
-    if(!isset($_SESSION['user'])){
-        header('Location: login.php');
-    }
-    include './service/libroService.php';
+    include './service/moduloService.php';
     
     $accion="Agregar";
-    $titulo = "";
-    $autor = "";
+    $nombreModulo = "";
+    $estadoModulo = "";
     $fechaPublicacion = "";
     $precio = "";
     $paginas = "";
-    $codigoLibro = "";
+    $codigoModulo = "";
 
-    $libroService = new LibroService();
+    $moduloService = new ModuloService();
 
     if(isset($_POST["accion"]) && $_POST["accion"] == "Agregar"){
-        $libroService->insert($_POST["titulo"],$_POST["autor"],$_POST["fecha_publicacion"],$_POST["precio"],$_POST["paginas"]);
+        $moduloService->insert($_POST["codigo"],$_POST["nombre"],$_POST["estado"]);
         $accion="Agregar";
     
     }elseif(isset($_POST["accion"]) && $_POST["accion"] == "Modificar"){
-        $libroService->update( $_POST["titulo"],$_POST["autor"],$_POST["fecha_publicacion"],
-                $_POST["precio"],$_POST["paginas"],$_POST["codigoLibro"]);    
+        $moduloService->update($_POST["codigo"],$_POST["nombre"],$_POST["estado"]);    
         $accion="Agregar";
     
     }elseif(isset($_POST["eliCodigo"])){
-        $libroService->delete($_POST["eliCodigo"]);
+        $moduloService->delete($_POST["eliCodigo"]);
     
     }elseif(isset($_GET["update"])){
         
-        $libro = $libroService->findByPk($_GET["update"]);
+        $modulo = $moduloService->findByPk($_GET["update"]);
 
-        if ($libro!=null) {
-                $codigoLibro=$libro["codigo"];
-                $titulo = $libro["titulo"];
-                $autor = $libro["autor"];
-                $fechaPublicacion = $libro["fecha_publicacion"];
-                $precio = $libro["precio"];
-                $paginas = $libro["paginas"];
+        if ($modulo!=null) {
+                $codigoModulo=$modulo["COD_MODULO"];
+                $nombreModulo = $modulo["NOMBRE"];
+                $estadoModulo = $modulo["ESTADO"];
             }
         $accion="Modificar";
     }
-    $result = $libroService->findAll();
+
+    $result = $moduloService->findAll();
 
 ?>
 
@@ -51,7 +44,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Libro</title>
+    <title>Modulo</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- Font Awesome -->
@@ -73,10 +66,6 @@
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
-
-                <li class="nav-item">
-                    <a class="nav-link" href="logout.php" role="button"><i class="fas fa-bars"></i>Log Oout</a>
-                </li>
             </ul>
             <!-- BORRE EL SEARCH AQUI  -->
         </nav>
@@ -85,7 +74,7 @@
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
             <!-- Brand Logo -->
             <p class="brand-link">
-                <span class="brand-text font-weight-light" style="color:white;">Desarrollo WEB </span>
+                <span class="brand-text font-weight-light" style="color:white;">Examen Desarrollo WEB </span>
             </p>
             <!-- Sidebar -->
             <div class="sidebar">
@@ -95,7 +84,7 @@
                         <img src="./dist/img/carnet.jpg" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
-                        <p class="d-block" style="color:white;"><?php echo $_SESSION['user']['NAME'] ?></p>
+                        <p class="d-block" style="color:white;">Santiago Vivas</p>
                     </div>
                 </div>
                 <!-- Sidebar Menu -->
@@ -107,7 +96,7 @@
                         <li class="nav-item has-treeview">
                             <a href="" class="nav-link active">
                                 <i class="nav-icon fas fa-edit"></i>
-                                <p>Libro</p>
+                                <p>Modulo</p>
                             </a>
                         </li>
                     </ul>
@@ -122,7 +111,7 @@
                 <div class="container-fluid" style="text-align: center;">
                     <div class="row mb-1">
                         <div class="col-sm-10">
-                            <h1>Gestión Libros</h1>
+                            <h1>Gestión Modulos</h1>
                         </div>
                     </div>
                 </div><!-- /.container-fluid -->
@@ -130,24 +119,19 @@
 
             <div class="container-fluid">
                 <div class="container">
-                    <form METHOD="POST" action="./libro.php" id="form" name="form">
+                    <form METHOD="POST" action="./modulo.php" id="form" name="form">
                         <div class="row">
                             <div class="col-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h3 class="card-title">Listado de libros</h3>
+                                        <h3 class="card-title">Listado de Modulos</h3>
                                     </div>
                                     <div class="card-body table-responsive p-0" style="height: 300px;">
                                         <table class="table table-head-fixed text-nowrap">
                                             <thead>
                                                 <tr>
-                                                    <th>Código</th>
-                                                    <th>Título</th>
-                                                    <th>Autor</th>
-                                                    <th>Fecha Publicación</th>
-                                                    <th>Precio</th>
-                                                    <th>Páginas</th>
-                                                    <th>Elimin</th>
+                                                    <th>Código Modulo</th>
+                                                    <th>Nombre</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -158,15 +142,11 @@
                                         while($row = $result->fetch_assoc()) {
                                         ?>
                                                 <tr>
-                                                    <td><a href="./libro.php?update=<?php echo $row["codigo"]?>">
-                                                            <?php echo $row["codigo"]?> </a></td>
-                                                    <td><?php echo $row["titulo"]?></td>
-                                                    <td><?php echo $row["autor"]?></td>
-                                                    <td><?php echo $row["fecha_publicacion"]?></td>
-                                                    <td><?php echo $row["precio"]?></td>
-                                                    <td><?php echo $row["paginas"]?></td>
+                                                    <td><a href="./modulo.php?update=<?php echo $row["COD_MODULO"]?>">
+                                                            <?php echo $row["COD_MODULO"]?> </a></td>
+                                                    <td><?php echo $row["NOMBRE"]?></td>
                                                     <td><input type="radio" name="eliCodigo"
-                                                            value="<?php echo $row["codigo"]?>"></td>
+                                                            value="<?php echo $row["COD_MODULO"]?>"></td>
                                                 </tr>
                                                 <?php 
                                         }
@@ -187,7 +167,7 @@
                                         <input type="button" name="eliminar"
                                             class="btn btn-block btn-primary float-right"
                                             style="padding-bottom: 4px; width:75px;" value="Eliminar"
-                                            onclick="eliminarLibro();">
+                                            onclick="eliminar();">
                                     </div>
 
                                 </div>
@@ -198,40 +178,29 @@
                             <div class="col-md-6 mx-auto">
                                 <div class="card card-primary">
                                     <div class="card-header">
-                                        <h3 class="card-title">Nuevo Libro</h3>
+                                        <h3 class="card-title">Modulo</h3>
                                     </div>
-                                    <input type="hidden" name="codigoLibro" value="<?php echo $codigoLibro?>">
+
 
                                     <div class="card-body">
-                                        <div class="form-group">
-                                            <label for="titulo">Título</label>
-                                            <input type="text" class="form-control" id="titulo"
-                                                placeholder="Ingresar Título" name="titulo" value="<?php echo $titulo?>"
-                                                required>
+                                         <div class="form-group">
+                                            <label for="codigo">Codigo</label>
+                                            <input type="text" class="form-control" id="codigo" name="codigo"
+                                                value="<?php echo $codigoModulo?>" required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="autor">Autor</label>
-                                            <input type="text" class="form-control" id="autor"
-                                                placeholder="Ingresar Autor" name="autor" value="<?php echo $autor?>"
-                                                required>
+                                            <label for="nombre">Nombre</label>
+                                            <input type="text" class="form-control" id="nombre" name="nombre"
+                                                value="<?php echo $nombreModulo?>" required>
                                         </div>
                                         <div class="form-group">
-                                            <label for="fecha_publicacion">Fecha de Publicación</label>
-                                            <input type="date" class="form-control" name="fecha_publicacion"
-                                                id="fecha_publicacion" value="<?php echo $fechaPublicacion?>" required>
+                                            <label for="estado">Estado</label >
+                                            <select class="form-control" id="estado" name="estado" >
+                                                <option value="ACT">ACTIVO</option>
+                                                <option value="INA">INACTIVO</option>
+                                            </select>
                                         </div>
-                                        <div class="form-group">
-                                            <label for="precio">Precio</label>
-                                            <input type="number" class="form-control" id="precio" min=0 step="any"
-                                                placeholder="Ingresar Precio" name="precio" value="<?php echo $precio?>"
-                                                required>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="paginas">Número de Páginas</label>
-                                            <input type="number" class="form-control" id="paginas" min=0
-                                                placeholder="Ingresar número de páginas" name="paginas"
-                                                value="<?php echo $paginas?>" required>
-                                        </div>
+
                                     </div>
 
                                     <input type="submit" class="btn btn-primary btn-block" name="accion"
@@ -265,7 +234,7 @@
 
     ?>
     <script>
-    function eliminarLibro() {
+    function eliminar() {
         document.getElementById("form").submit();
     }
     </script>
